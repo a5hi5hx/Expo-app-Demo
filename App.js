@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, Alert, StyleSheet, SafeAreaView, StatusBar, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, Alert, StyleSheet, SafeAreaView, StatusBar, Platform, TouchableOpacity, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import RNFS from 'react-native-fs';
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 const daysOfWeek = [
   { name: 'Sunday', value: 1 },
@@ -38,6 +38,14 @@ const App = () => {
   const [tghadi, setTghadi] = useState('');
   const [nakshatra, setNakshatra] = useState('');
   const [tnakshatra, setTnakshatra] = useState('');
+  const [shiva, setShiva] = useState(false);
+  const [agni, setAgni] = useState(false);
+  const [kalash, setKalash] = useState(false);
+  const [vastu, setVastu] = useState(false);
+  const [dhoka, setDhoka] = useState(false);
+  const [puran, setPuran] = useState(false);
+  const [sunCount, setSunCount] = useState(false);
+  const [guruCount, setGuruCount] = useState(false);
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -58,17 +66,6 @@ const App = () => {
     try {
       const jsonValue = JSON.stringify(newData);
       await AsyncStorage.setItem('@calendar_data', jsonValue);
-      
-      // Save the data to a file in the device storage
-      const directoryPath = `${RNFS.DocumentDirectoryPath}/CalendarData`;
-      const filePath = `${directoryPath}/data.json`;
-      
-      // Create the directory if it doesn't exist
-      await RNFS.mkdir(directoryPath);
-      
-      // Write the JSON data to the file
-      await RNFS.writeFile(filePath, jsonValue, 'utf8');
-      console.log('Data saved to:', filePath);
     } catch (e) {
       console.error(e);
     }
@@ -89,6 +86,14 @@ const App = () => {
       tghadi,
       nakshatra,
       tnakshatra,
+      shiva,
+      agni,
+      kalash,
+      vastu,
+      dhoka,
+      puran,
+      sunCount,
+      guruCount,
     };
 
     const existingItem = data.find(item => item.month === selectedMonth && item.date === date);
@@ -108,6 +113,14 @@ const App = () => {
     setTghadi('');
     setNakshatra('');
     setTnakshatra('');
+    setShiva(false);
+    setAgni(false);
+    setKalash(false);
+    setVastu(false);
+    setDhoka(false);
+    setPuran(false);
+    setSunCount(false);
+    setGuruCount(false);
   };
 
   const handleSelectMonth = (month) => {
@@ -118,89 +131,144 @@ const App = () => {
     setSelectedDay(day);
   };
 
+  const handleDeleteData = (id) => {
+    const updatedData = data.filter(item => item.id !== id);
+    setData(updatedData);
+    saveData(updatedData);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
-      <View style={styles.container}>
-        <View style={styles.monthsContainer}>
-          {nepaliMonths.map((month) => (
-            <TouchableOpacity
-              key={month.value}
-              style={[styles.monthBox, selectedMonth === month.value && styles.selectedMonthBox]}
-              onPress={() => handleSelectMonth(month.value)}
-            >
-              <Text style={selectedMonth === month.value ? styles.selectedMonthText : styles.monthText}>
-                {month.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Date"
-          keyboardType="numeric"
-          value={date}
-          onChangeText={setDate}
-        />
-        <View style={styles.daysContainer}>
-          {daysOfWeek.map((day) => (
-            <TouchableOpacity
-              key={day.value}
-              style={[styles.dayBox, selectedDay === day.value && styles.selectedDayBox]}
-              onPress={() => handleSelectDay(day.value)}
-            >
-              <Text style={selectedDay === day.value ? styles.selectedDayText : styles.dayText}>
-                {day.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Tithi"
-          keyboardType="numeric"
-          value={tithi}
-          onChangeText={setTithi}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Tghadi"
-          keyboardType="numeric"
-          value={tghadi}
-          onChangeText={setTghadi}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nakshatra"
-          keyboardType="numeric"
-          value={nakshatra}
-          onChangeText={setNakshatra}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Tnakshatra"
-          keyboardType="numeric"
-          value={tnakshatra}
-          onChangeText={setTnakshatra}
-        />
-        <Button title="Add Data" onPress={handleAddData} />
-
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
-            const dayName = daysOfWeek.find(day => day.value === item.day)?.name || 'Unknown';
-            const monthName = nepaliMonths.find(month => month.value === item.month)?.name || 'Unknown';
-            return (
-              <View style={styles.listItem}>
-                <Text>
-                  Month: {monthName}, Date: {item.date}, Day: {dayName}, Tithi: {item.tithi}, Tghadi: {item.tghadi}, Nakshatra: {item.nakshatra}, Tnakshatra: {item.tnakshatra}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Select Nepali Month</Text>
+          <View style={styles.monthsContainer}>
+            {nepaliMonths.map((month) => (
+              <TouchableOpacity
+                key={month.value}
+                style={[styles.monthBox, selectedMonth === month.value && styles.selectedMonthBox]}
+                onPress={() => handleSelectMonth(month.value)}
+              >
+                <Text style={selectedMonth === month.value ? styles.selectedMonthText : styles.monthText}>
+                  {month.name}
                 </Text>
-              </View>
-            );
-          }}
-        />
-      </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Date"
+            keyboardType="numeric"
+            value={date}
+            onChangeText={setDate}
+          />
+          <View style={styles.daysContainer}>
+            {daysOfWeek.map((day) => (
+              <TouchableOpacity
+                key={day.value}
+                style={[styles.dayBox, selectedDay === day.value && styles.selectedDayBox]}
+                onPress={() => handleSelectDay(day.value)}
+              >
+                <Text style={selectedDay === day.value ? styles.selectedDayText : styles.dayText}>
+                  {day.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Tithi"
+            keyboardType="numeric"
+            value={tithi}
+            onChangeText={setTithi}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Tghadi"
+            keyboardType="numeric"
+            value={tghadi}
+            onChangeText={setTghadi}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Nakshatra"
+            keyboardType="numeric"
+            value={nakshatra}
+            onChangeText={setNakshatra}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Tnakshatra"
+            keyboardType="numeric"
+            value={tnakshatra}
+            onChangeText={setTnakshatra}
+          />
+
+          <BouncyCheckbox
+            isChecked={shiva}
+            text="Shiva"
+            onPress={() => setShiva(!shiva)}
+          />
+          <BouncyCheckbox
+            isChecked={agni}
+            text="Agni"
+            onPress={() => setAgni(!agni)}
+          />
+          <BouncyCheckbox
+            isChecked={kalash}
+            text="Kalash"
+            onPress={() => setKalash(!kalash)}
+          />
+          <BouncyCheckbox
+            isChecked={vastu}
+            text="Vastu"
+            onPress={() => setVastu(!vastu)}
+          />
+          <BouncyCheckbox
+            isChecked={dhoka}
+            text="Dhoka"
+            onPress={() => setDhoka(!dhoka)}
+          />
+          <BouncyCheckbox
+            isChecked={puran}
+            text="Puran"
+            onPress={() => setPuran(!puran)}
+          />
+          <BouncyCheckbox
+            isChecked={sunCount}
+            text="SunCount"
+            onPress={() => setSunCount(!sunCount)}
+          />
+          <BouncyCheckbox
+            isChecked={guruCount}
+            text="GuruCount"
+            onPress={() => setGuruCount(!guruCount)}
+          />
+
+          <Button title="Add Data" onPress={handleAddData} />
+
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => {
+              const dayName = daysOfWeek.find(day => day.value === item.day)?.name || 'Unknown';
+              const monthName = nepaliMonths.find(month => month.value === item.month)?.name || 'Unknown';
+              return (
+                <TouchableOpacity
+                  onLongPress={() => handleDeleteData(item.id)}
+                >
+                  <View style={styles.listItem}>
+                    <Text style={styles.listItemText}>
+                      Month: {monthName}, Date: {item.date}, Day: {dayName}, Tithi: {item.tithi}, Tghadi: {item.tghadi}, Nakshatra: {item.nakshatra}, Tnakshatra: {item.tnakshatra}, Shiva: {item.shiva ? 'Yes' : 'No'}, Agni: {item.agni ? 'Yes' : 'No'}, Kalash: {item.kalash ? 'Yes' : 'No'}, Vastu: {item.vastu ? 'Yes' : 'No'}, Dhoka: {item.dhoka ? 'Yes' : 'No'}, Puran: {item.puran ? 'Yes' : 'No'}, SunCount: {item.sunCount ? 'Yes' : 'No'}, GuruCount: {item.guruCount ? 'Yes' : 'No'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -211,10 +279,18 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     backgroundColor: '#fff',
   },
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   input: {
     height: 40,
@@ -275,6 +351,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
+  },
+  listItemText: {
+    color: 'black',
   },
 });
 
