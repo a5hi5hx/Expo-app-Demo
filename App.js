@@ -205,6 +205,77 @@ const App = () => {
   );
 };
 
-
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: '#fff',
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    padding: 10,
+  },
+  monthsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 10,
+  },
+  monthBox: {
+    width: '28%',
+    padding: 10,
+    margin: '1%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  selectedMonthBox: {
+    backgroundColor: 'blue',
+  },
+  monthText: {
+    color: 'black',
+  },
+  selectedMonthText: {
+    color: 'white',
+  },
+  daysContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 10,
+  },
+  dayBox: {
+    width: '28%',
+    padding: 10,
+    margin: '1%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  selectedDayBox: {
+    backgroundColor: 'blue',
+  },
+  dayText: {
+    color: 'black',
+  },
+  selectedDayText: {
+    color: 'white',
+  },
+  listItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+});
 
 export default App;
